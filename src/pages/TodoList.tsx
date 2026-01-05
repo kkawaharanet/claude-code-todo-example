@@ -17,7 +17,7 @@ const TodoList: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-5">
+    <div className="w-full max-w-screen-xl mx-auto p-5">
       <h1 className="mb-6 text-3xl text-slate-700">TODO 一覧</h1>
 
       <LinkButton to="/create" variant="primary" className="mb-5">

@@ -50,10 +50,10 @@ const EditTodo: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-5">
+    <div className="w-full max-w-screen-xl mx-auto p-5">
       <h1 className="mb-6 text-3xl text-slate-700">TODO 編集</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm max-w-2xl">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm w-full max-w-2xl mx-auto">
         <div className="mb-5">
           <label htmlFor="title" className="block mb-2 font-medium text-gray-700">題名 *</label>
           <input

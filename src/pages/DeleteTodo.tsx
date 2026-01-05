@@ -29,15 +29,15 @@ const DeleteTodo: React.FC = () => {
   };
 
   if (!todo) {
-    return <div className="max-w-7xl mx-auto p-5">読み込み中...</div>;
+    return <div className="w-full max-w-screen-xl mx-auto p-5">読み込み中...</div>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-5">
+    <div className="w-full max-w-screen-xl mx-auto p-5">
       <h1 className="mb-6 text-3xl text-slate-700">TODO 削除確認</h1>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm max-w-2xl">
-        <p className="mb-5 font-medium text-red-500">以下のTODOを削除してもよろしいですか?</p>
+      <div className="bg-white p-6 rounded-lg shadow-sm w-full max-w-2xl mx-auto">
+        <p className="mb-5 font-medium text-rose-600">以下のTODOを削除してもよろしいですか?</p>
 
         <div className="bg-gray-50 p-4 rounded mb-5">
           <div className="flex mb-2 last:mb-0">
