@@ -1,63 +1,61 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useTodos } from '../TodoContext';
+import LinkButton from '../components/LinkButton';
 import { Todo } from '../types';
 
 const TodoList: React.FC = () => {
   const { todos } = useTodos();
 
-  const getStatusColor = (status: Todo['status']) => {
-    switch (status) {
-      case '新規': return '#3b82f6';
-      case '実施中': return '#eab308';
-      case '完了': return '#22c55e';
-      case '不要': return '#6b7280';
-    }
+  const getStatusClass = (status: Todo['status']) => {
+    const statusClasses = {
+      新規: 'bg-blue-500',
+      実施中: 'bg-yellow-500',
+      完了: 'bg-green-500',
+      不要: 'bg-gray-500',
+    };
+    return statusClasses[status];
   };
 
   return (
-    <div className="container">
-      <h1>TODO 一覧</h1>
-      
-      <Link to="/create" className="button button-primary">
-        新規TODO作成
-      </Link>
+    <div className="max-w-7xl mx-auto p-5">
+      <h1 className="mb-6 text-3xl text-slate-700">TODO 一覧</h1>
 
-      <div className="todo-list">
+      <LinkButton to="/create" variant="primary" className="mb-5">
+        新規TODO作成
+      </LinkButton>
+
+      <div className="mt-5">
         {todos.length === 0 ? (
           <p>TODOがありません</p>
         ) : (
-          <table className="todo-table">
+          <table className="w-full bg-white shadow-sm rounded-lg overflow-hidden border-collapse">
             <thead>
               <tr>
-                <th>題名</th>
-                <th>状態</th>
-                <th>担当者</th>
-                <th>期限</th>
-                <th>操作</th>
+                <th className="p-3 text-left bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">題名</th>
+                <th className="p-3 text-left bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">状態</th>
+                <th className="p-3 text-left bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">担当者</th>
+                <th className="p-3 text-left bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">期限</th>
+                <th className="p-3 text-left bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">操作</th>
               </tr>
             </thead>
             <tbody>
               {todos.map((todo) => (
-                <tr key={todo.id}>
-                  <td>{todo.title}</td>
-                  <td>
-                    <span 
-                      className="status-badge" 
-                      style={{ backgroundColor: getStatusColor(todo.status) }}
-                    >
+                <tr key={todo.id} className="hover:bg-gray-50">
+                  <td className="p-3 border-b border-gray-200">{todo.title}</td>
+                  <td className="p-3 border-b border-gray-200">
+                    <span className={`px-3 py-1 rounded-xl text-xs text-white inline-block ${getStatusClass(todo.status)}`}>
                       {todo.status}
                     </span>
                   </td>
-                  <td>{todo.assignee}</td>
-                  <td>{todo.dueDate}</td>
-                  <td>
-                    <Link to={`/edit/${todo.id}`} className="button button-small">
+                  <td className="p-3 border-b border-gray-200">{todo.assignee}</td>
+                  <td className="p-3 border-b border-gray-200">{todo.dueDate}</td>
+                  <td className="p-3 border-b border-gray-200">
+                    <LinkButton to={`/edit/${todo.id}`} size="small" className="mr-2">
                       編集
-                    </Link>
-                    <Link to={`/delete/${todo.id}`} className="button button-small button-danger">
+                    </LinkButton>
+                    <LinkButton to={`/delete/${todo.id}`} variant="danger" size="small">
                       削除
-                    </Link>
+                    </LinkButton>
                   </td>
                 </tr>
               ))}
