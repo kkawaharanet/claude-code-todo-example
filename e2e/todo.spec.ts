@@ -1,14 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('TODO アプリケーション E2E テスト', () => {
-  test.beforeEach(async ({ page, context }) => {
-    // LocalStorageをクリアして初期状態に戻す
-    await context.clearCookies();
+  test.beforeEach(async ({ page }) => {
+    // メモリストレージを使用しているため、ページ遷移で初期状態に戻る
     await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.clear();
-    });
-    await page.reload();
   });
 
   test('1. /にアクセスしたとき、TODO一覧表示画面が表示されること', async ({ page }) => {

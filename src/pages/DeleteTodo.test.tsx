@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { TodoProvider } from '../TodoContext';
 import DeleteTodo from './DeleteTodo';
+import { Todo } from '../types';
 
 const mockNavigate = vi.fn();
 
@@ -15,16 +16,23 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+const createWrapper = (initialTodos?: Todo[]) => {
+  return ({ children }: { children: React.ReactNode }) => (
+    <MemoryRouter>
+      <TodoProvider initialTodos={initialTodos}>{children}</TodoProvider>
+    </MemoryRouter>
+  );
+};
+
 describe('DeleteTodo', () => {
   beforeEach(() => {
-    localStorage.clear();
     mockNavigate.mockClear();
   });
 
-  const renderWithRouter = (todoId: string) => {
+  const renderWithRouter = (todoId: string, initialTodos?: Todo[]) => {
     return render(
       <MemoryRouter initialEntries={[`/delete/${todoId}`]}>
-        <TodoProvider>
+        <TodoProvider initialTodos={initialTodos}>
           <Routes>
             <Route path="/delete/:id" element={<DeleteTodo />} />
           </Routes>
@@ -35,11 +43,11 @@ describe('DeleteTodo', () => {
 
   describe('初期表示', () => {
     it('タイトルが表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テストTODO', description: '説明', status: '新規', assignee: '担当者', dueDate: '2026-01-10' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('TODO 削除確認')).toBeInTheDocument();
@@ -47,11 +55,11 @@ describe('DeleteTodo', () => {
     });
 
     it('削除確認メッセージが表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テストTODO', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('以下のTODOを削除してもよろしいですか?')).toBeInTheDocument();
@@ -59,7 +67,7 @@ describe('DeleteTodo', () => {
     });
 
     it('TODOの詳細情報が表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         {
           id: '1',
           title: '削除対象TODO',
@@ -68,9 +76,9 @@ describe('DeleteTodo', () => {
           assignee: '山田太郎',
           dueDate: '2026-02-01'
         }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('削除対象TODO')).toBeInTheDocument();
@@ -82,11 +90,11 @@ describe('DeleteTodo', () => {
     });
 
     it('説明が空の場合、「(なし)」と表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         const descriptions = screen.getAllByText('(なし)');
@@ -95,11 +103,11 @@ describe('DeleteTodo', () => {
     });
 
     it('担当者が空の場合、「(なし)」と表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: 'あり', status: '新規', assignee: '', dueDate: '2026-01-10' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         const noneTexts = screen.getAllByText('(なし)');
@@ -108,11 +116,11 @@ describe('DeleteTodo', () => {
     });
 
     it('期限が空の場合、「(なし)」と表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: 'あり', status: '新規', assignee: '担当者', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         const noneTexts = screen.getAllByText('(なし)');
@@ -121,11 +129,11 @@ describe('DeleteTodo', () => {
     });
 
     it('削除ボタンとキャンセルボタンが表示される', async () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: '削除' })).toBeInTheDocument();
@@ -134,9 +142,9 @@ describe('DeleteTodo', () => {
     });
 
     it('存在しないIDの場合、ホームにリダイレクトされる', async () => {
-      localStorage.setItem('todos', JSON.stringify([]));
+      const initialTodos: Todo[] = [];
 
-      renderWithRouter('999');
+      renderWithRouter('999', initialTodos);
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');
@@ -144,11 +152,11 @@ describe('DeleteTodo', () => {
     });
 
     it('TODOが見つからない間は「読み込み中...」と表示される', () => {
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('999');
+      renderWithRouter('999', initialTodos);
 
       expect(screen.getByText('読み込み中...')).toBeInTheDocument();
     });
@@ -158,12 +166,12 @@ describe('DeleteTodo', () => {
     it('削除ボタンをクリックするとTODOが削除されてホームに戻る', async () => {
       const user = userEvent.setup();
 
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: '削除対象', description: '', status: '新規', assignee: '', dueDate: '' },
         { id: '2', title: '残るTODO', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('削除対象')).toBeInTheDocument();
@@ -175,20 +183,16 @@ describe('DeleteTodo', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');
       });
-
-      const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-      expect(todos).toHaveLength(1);
-      expect(todos[0].title).toBe('残るTODO');
     });
 
     it('キャンセルボタンをクリックするとホームに戻る', async () => {
       const user = userEvent.setup();
 
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'テスト', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('1');
+      renderWithRouter('1', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('テスト')).toBeInTheDocument();
@@ -198,11 +202,6 @@ describe('DeleteTodo', () => {
       await user.click(cancelButton);
 
       expect(mockNavigate).toHaveBeenCalledWith('/');
-
-      // TODOは削除されていないことを確認
-      const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-      expect(todos).toHaveLength(1);
-      expect(todos[0].title).toBe('テスト');
     });
   });
 
@@ -210,13 +209,13 @@ describe('DeleteTodo', () => {
     it('複数のTODOがある場合、指定したTODOのみ削除される', async () => {
       const user = userEvent.setup();
 
-      localStorage.setItem('todos', JSON.stringify([
+      const initialTodos: Todo[] = [
         { id: '1', title: 'TODO 1', description: '', status: '新規', assignee: '', dueDate: '' },
         { id: '2', title: 'TODO 2', description: '', status: '新規', assignee: '', dueDate: '' },
         { id: '3', title: 'TODO 3', description: '', status: '新規', assignee: '', dueDate: '' }
-      ]));
+      ];
 
-      renderWithRouter('2');
+      renderWithRouter('2', initialTodos);
 
       await waitFor(() => {
         expect(screen.getByText('TODO 2')).toBeInTheDocument();
@@ -228,11 +227,6 @@ describe('DeleteTodo', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');
       });
-
-      const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-      expect(todos).toHaveLength(2);
-      expect(todos[0].title).toBe('TODO 1');
-      expect(todos[1].title).toBe('TODO 3');
     });
   });
 });

@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:memory": "VITE_STORAGE_TYPE=memory vite",
     "build": "tsc -b && vite build",
+    "build:local": "VITE_STORAGE_TYPE=localStorage tsc -b && VITE_STORAGE_TYPE=localStorage vite build",
+    "build:memory": "VITE_STORAGE_TYPE=memory tsc -b && VITE_STORAGE_TYPE=memory vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

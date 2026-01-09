@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Todo } from './types';
+import { createStorage, StorageStrategy } from './storage';
 
 interface TodoContextType {
   todos: Todo[];
@@ -21,38 +22,21 @@ export const useTodos = () => {
 
 interface TodoProviderProps {
   children: ReactNode;
+  initialTodos?: Todo[];
 }
 
-const STORAGE_KEY = 'todos';
+export const TodoProvider: React.FC<TodoProviderProps> = ({ children, initialTodos }) => {
+  const storageRef = useRef<StorageStrategy>(createStorage());
 
-export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>(() => {
-    try {
-      const storedTodos = localStorage.getItem(STORAGE_KEY);
-      if (storedTodos) {
-        return JSON.parse(storedTodos);
-      }
-    } catch (error) {
-      console.error('Failed to load todos from localStorage:', error);
+    if (initialTodos !== undefined) {
+      return initialTodos;
     }
-    return [
-      {
-        id: '1',
-        title: 'サンプルTODO',
-        description: 'これはサンプルのTODOです',
-        status: '新規',
-        assignee: '山田太郎',
-        dueDate: '2026-01-10',
-      },
-    ];
+    return storageRef.current.load();
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-    } catch (error) {
-      console.error('Failed to save todos to localStorage:', error);
-    }
+    storageRef.current.save(todos);
   }, [todos]);
 
   const addTodo = (todo: Omit<Todo, 'id'>) => {
@@ -64,7 +48,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   };
 
   const updateTodo = (id: string, updatedFields: Partial<Todo>) => {
-    setTodos(todos.map(todo => 
+    setTodos(todos.map(todo =>
       todo.id === id ? { ...todo, ...updatedFields } : todo
     ));
   };

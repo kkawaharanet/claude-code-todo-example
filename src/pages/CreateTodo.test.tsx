@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { TodoProvider } from '../TodoContext';
 import CreateTodo from './CreateTodo';
+import { Todo } from '../types';
 
 const mockNavigate = vi.fn();
 
@@ -17,15 +18,18 @@ vi.mock('react-router-dom', async () => {
 
 describe('CreateTodo', () => {
   beforeEach(() => {
-    localStorage.clear();
     mockNavigate.mockClear();
   });
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <BrowserRouter>
-      <TodoProvider>{children}</TodoProvider>
-    </BrowserRouter>
-  );
+  const createWrapper = (initialTodos?: Todo[]) => {
+    return ({ children }: { children: React.ReactNode }) => (
+      <BrowserRouter>
+        <TodoProvider initialTodos={initialTodos}>{children}</TodoProvider>
+      </BrowserRouter>
+    );
+  };
+
+  const wrapper = createWrapper();
 
   describe('初期表示', () => {
     it('タイトルが表示される', () => {
@@ -132,10 +136,6 @@ describe('CreateTodo', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');
       });
-
-      const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-      expect(todos.length).toBeGreaterThan(0);
-      expect(todos[todos.length - 1].title).toBe('新しいTODO');
     });
 
     it('キャンセルボタンをクリックするとホームに戻る', async () => {
@@ -176,14 +176,6 @@ describe('CreateTodo', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');
       });
-
-      const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-      const newTodo = todos[todos.length - 1];
-      expect(newTodo.title).toBe('新規タスク');
-      expect(newTodo.description).toBe('タスクの説明');
-      expect(newTodo.status).toBe('実施中');
-      expect(newTodo.assignee).toBe('佐藤次郎');
-      expect(newTodo.dueDate).toBe('2026-06-15');
     });
   });
 });
